@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Passport to Powers</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@600;800&family=Caveat:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1d2242;--sky:#e7f5ff;--ok:#2f9e44;--bad:#e03131;--gold:#f59f00;--c1:#e8590c;--c2:#1c7ed6;--c3:#7048e8;--c4:#0ca678;--c5:#d6336c}
+*{box-sizing:border-box}
+body{margin:0;font-family:Nunito,"Segoe UI",sans-serif;color:var(--ink);background:linear-gradient(180deg,#a5d8ff 0%,#e7f5ff 45%,#fff4e6 100%);min-height:100vh}
+h1,h2,h3{font-family:"Baloo 2",sans-serif;margin:0}
+.wrap{max-width:1220px;margin:0 auto;padding:12px}
+.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.top h1{flex:1;font-size:clamp(24px,4vw,38px)}
+.pill{background:#fff;border-radius:999px;padding:5px 14px;font-weight:800;box-shadow:0 2px 0 #0001}
+.game{display:grid;grid-template-columns:1fr 1.05fr;gap:14px;margin-top:10px}
+@media(max-width:940px){.game{grid-template-columns:1fr}}
+.card{background:#fff;border-radius:22px;padding:16px;box-shadow:0 10px 26px #1d224218}
+#map{width:100%;display:block;border-radius:16px;background:#d0ebff}
+.prep{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.slot{border:3px dashed #ced4da;border-radius:16px;text-align:center;padding:8px 4px;font-weight:800;font-size:13px;color:#adb5bd;transition:.4s}
+.slot .e{font-size:34px;display:block;filter:grayscale(1);opacity:.35;transition:.4s}
+.slot.got{border-style:solid;border-color:var(--ok);color:var(--ink);background:#ebfbee}
+.slot.got .e{filter:none;opacity:1;animation:packed .6s}
+@keyframes packed{0%{transform:scale(.3) rotate(-30deg)}70%{transform:scale(1.3)}100%{transform:none}}
+.stamps{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;min-height:46px;align-items:center}
+.stamp{font-family:"Baloo 2";font-weight:800;font-size:12px;border:3px solid;border-radius:50%;width:58px;height:58px;display:grid;place-items:center;text-align:center;line-height:1;transform:rotate(-12deg);animation:thump .5s}
+@keyframes thump{0%{transform:scale(2.4) rotate(-30deg);opacity:0}100%{transform:rotate(-12deg)}}
+.stage{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sk{color:#fff;border-radius:999px;padding:4px 14px;font-weight:800}
+.task{font-weight:800;color:#555}
+.q{font-size:clamp(24px,3.6vw,34px);font-weight:800;text-align:center;margin:14px 0;line-height:1.5}
+.q small{display:block;font-size:18px;color:#555;font-weight:700;margin-bottom:6px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.opts{grid-template-columns:1fr}}
+.opt{display:flex;align-items:center;gap:12px;border:3px solid #dee2e6;background:#fff;border-radius:18px;padding:8px 14px;font-size:clamp(20px,3vw,26px);font-weight:800;cursor:pointer;color:var(--ink);min-height:66px;font-family:Nunito;text-align:left}
+.opt:hover{border-color:#adb5bd;transform:translateY(-2px)}
+.opt .L{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:#fff;font-family:"Baloo 2";font-size:21px}
+.opt:nth-child(1) .L{background:#f76707}.opt:nth-child(2) .L{background:#1c7ed6}.opt:nth-child(3) .L{background:#ae3ec9}.opt:nth-child(4) .L{background:#2f9e44}
+.opt.right{background:#ebfbee;border-color:var(--ok)}.opt.wrong{background:#fff5f5;border-color:var(--bad);animation:sh .4s}
+@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fb{margin-top:12px;border-radius:14px;padding:10px 14px;font-size:19px;display:none;line-height:1.9}
+.fb.ok{display:block;background:#ebfbee}.fb.bad{display:block;background:#fff5f5}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.btn{font-family:"Baloo 2";font-size:20px;font-weight:800;border:0;border-radius:14px;padding:8px 20px;cursor:pointer;color:#fff;background:var(--ink)}
+.btn.rule{background:#fff3bf;color:#7a5900}
+.rulecard{display:none;margin-top:10px;background:#fff9db;border:2px dashed #f59f00;border-radius:14px;padding:10px 14px;font-size:19px;line-height:2}
+/* maths */
+.pw{white-space:nowrap}
+.pw sup{font-size:.62em;margin-left:.04em;vertical-align:.75em;line-height:0}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .12em;line-height:1.15}
+.fr>span:first-child{border-bottom:.07em solid currentColor;padding:0 .18em}
+.fr>span:last-child{padding:0 .18em}
+sup .fr{vertical-align:middle;font-size:.95em}
+.rad{white-space:nowrap}.rad .in{border-top:.08em solid currentColor;padding:0 .1em}
+.rad .ix{font-size:.55em;vertical-align:.9em;margin-right:-.35em}
+/* overlays */
+.ov{position:fixed;inset:0;background:#1d2242cc;display:grid;place-items:center;z-index:30;padding:14px;overflow:auto}
+.ov .card{max-width:680px;width:100%;text-align:center}
+.ov p{font-size:19px;line-height:1.6}
+.dreams{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}
+@media(max-width:560px){.dreams{grid-template-columns:repeat(2,1fr)}}
+.dream{border:4px solid transparent;border-radius:18px;overflow:hidden;cursor:pointer;background:#f1f3f5;padding:0;font-family:"Baloo 2";font-weight:800;font-size:16px;color:var(--ink)}
+.dream svg{display:block;width:100%}
+.dream.on{border-color:#f59f00;box-shadow:0 0 0 4px #ffe066}
+input#nm{font-size:22px;padding:8px 14px;border-radius:12px;border:3px solid #ced4da;width:min(320px,100%);font-family:Nunito;text-align:center}
+.postcard{background:#fffdf5;border-radius:18px;border:3px solid #e9c46a;overflow:hidden;text-align:left}
+.postcard .hand{font-family:Caveat,cursive;font-size:30px;line-height:1.2;padding:10px 16px}
+.bpass{display:flex;border-radius:16px;overflow:hidden;margin-top:12px;text-align:left;box-shadow:0 4px 12px #0002}
+.bpass>div{padding:10px 14px}
+.bpass .l{background:#1c7ed6;color:#fff;flex:1}.bpass .r{background:#fff;border-left:3px dashed #1c7ed6;min-width:120px}
+.bpass b{font-family:"Baloo 2";font-size:22px}
+.lbl{font-size:12px;opacity:.8;text-transform:uppercase;letter-spacing:1px}
+#conf{position:fixed;inset:0;pointer-events:none;z-index:60}
+</style>
+</head>
+<body>
+<canvas id="conf"></canvas>
+<div class="wrap">
+<div class="top"><h1>&#x2708;&#xFE0F; Passport to Powers</h1><span class="pill" id="who"></span><span class="pill" id="stars">&#x2B50; 0</span></div>
+<div class="game">
+<div class="card">
+<svg id="map" viewBox="0 0 640 330"></svg>
+<h3 style="margin-top:10px" id="preptitle">Get ready</h3>
+<div class="prep" id="prep"></div>
+<div class="stamps" id="stamps"><span style="color:#868e96;font-weight:700">Passport stamps will appear here</span></div>
+</div>
+<div class="card" id="qcard"></div>
+</div>
+</div>
+
+<div class="ov" id="intro"><div class="card">
+<h2 style="font-size:34px">&#x1F9F3; Passport to Powers</h2>
+<p>You are flying from <b>Al Khobar</b> to your <b>dream place</b>!<br>At every stop you must <b>prepare</b> for the next flight. Each correct answer packs one thing. Pack all 4 and you can fly on.</p>
+<input id="nm" placeholder="Your first name" maxlength="20">
+<h3 style="margin-top:14px">Choose your dream place</h3>
+<div class="dreams" id="dreams"></div>
+<button class="btn" id="go" style="font-size:24px;padding:10px 30px;background:#f59f00">Start my trip &#x1F6EB;</button>
+</div></div>
+
+<script>
+// ---------- maths typesetting ----------
+const M='−';
+const sgn=n=>n<0?M+(-n):''+n;
+const Fr=(a,b)=>`<span class="fr"><span>${a}</span><span>${b}</span></span>`;
+const P=(b,e)=>`<span class="pw">${b}<sup>${e}</sup></span>`;
+const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b)[a,b]=[b,a%b];return a};
+function R(n,d=1){// reduced rational, stacked; returns {h,v}
+ if(d<0){n=-n;d=-d}const g=gcd(n,d)||1;n/=g;d/=g;
+ return {h:d==1?sgn(n):(n<0?M:'')+Fr(Math.abs(n),d),v:n/d}}
+const N=v=>({h:sgn(v),v});
+const rad=(a,i)=>`<span class="rad">${i?`<span class="ix">${i}</span>`:''}√<span class="in">${a}</span></span>`;
+const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const pw=(b,e)=>Math.pow(b,e);
+// option in index form: shows b^e, value b^e
+const IX=(b,e)=>({h:P(b,typeof e=='number'?sgn(e):e),v:typeof e=='number'?pw(b,e):NaN});
+
+// ---------- question generators: each returns {q, truth, c:[correct, distractors...], e} ----------
+const GEN={
+1:[ // INDEX FORM
+ ()=>{const a=pick([2,3,5,7,10]),n=ri(3,6);return{q:`<small>Write in index form:</small>${Array(n).fill(a).join(' × ')}`,truth:pw(a,n),
+   c:[IX(a,n),IX(n,a),{h:`${a} × ${n}`,v:a*n},IX(a,n+1),IX(a,n-1)],e:`${a} is multiplied ${n} times, so it is ${P(a,n)}`}},
+ ()=>{const a=pick([2,3,4,5,10]),n=a==2?ri(3,6):a==10?ri(3,5):ri(2,4);return{q:`<small>Work out:</small>${P(a,n)}`,truth:pw(a,n),
+   c:[N(pw(a,n)),N(a*n),N(pw(n,a)),N(pw(a,n-1)),N(a+n)],e:`${P(a,n)} = ${Array(n).fill(a).join(' × ')} = ${pw(a,n)}`}},
+ ()=>{const [n,f]=pick([[12,[[2,2],[3,1]]],[18,[[2,1],[3,2]]],[24,[[2,3],[3,1]]],[36,[[2,2],[3,2]]],[40,[[2,3],[5,1]]],[48,[[2,4],[3,1]]],[72,[[2,3],[3,2]]],[100,[[2,2],[5,2]]],[108,[[2,2],[3,3]]],[200,[[2,3],[5,2]]],[54,[[2,1],[3,3]]],[45,[[3,2],[5,1]]]]);
+   const show=fs=>({h:fs.map(([p,e])=>e==1?p:P(p,e)).join(' × '),v:fs.reduce((t,[p,e])=>t*pw(p,e),1)});
+   const [[p1,e1],[p2,e2]]=f;
+   return{q:`<small>Write ${n} as a product of prime factors in index form:</small>`,truth:n,
+   c:[show(f),show([[p1,e2],[p2,e1]]),show([[p1,e1+1],[p2,e2]]),show([[p1,e1],[p2,e2+1]]),show([[p1,Math.max(1,e1-1)],[p2,e2]])],e:`${n} = ${f.map(([p,e])=>Array(e).fill(p).join(' × ')).join(' × ')} = ${show(f).h}`}},
+ ()=>{const a=pick([2,3,5]),n=a==2?ri(3,7):ri(2,4),t=pw(a,n);return{q:`<small>Find <i>n</i>:</small>${P(a,'<i>n</i>')} = ${t}`,truth:n,
+   c:[N(n),N(n+1),N(n-1),N(t/a),N(n+2)],e:`${Array(n).fill(a).join(' × ')} = ${t}, so <i>n</i> = ${n}`}}],
+2:[ // LAWS with positive powers
+ ()=>{const a=pick([2,3,5,7]),m=ri(2,6),n=ri(2,6);return{q:`<small>Write as a single power:</small>${P(a,m)} × ${P(a,n)}`,truth:pw(a,m+n),
+   c:[IX(a,m+n),IX(a,m*n),IX(a*a,m+n),IX(a,m+n+1),IX(a,Math.abs(m-n)||1)],e:`Multiplying: <b>add</b> the powers. ${m} + ${n} = ${m+n}, so ${P(a,m+n)}`}},
+ ()=>{const a=pick([2,3,5,7]),n=ri(2,5),m=n+ri(2,6);return{q:`<small>Write as a single power:</small>${P(a,m)} ÷ ${P(a,n)}`,truth:pw(a,m-n),
+   c:[IX(a,m-n),IX(a,m+n),IX(1,m-n),IX(a,m*n),IX(a,m-n+1)],e:`Dividing: <b>subtract</b> the powers. ${m} − ${n} = ${m-n}, so ${P(a,m-n)}`}},
+ ()=>{const a=pick([2,3,5]),m=ri(2,5),n=ri(2,4);return{q:`<small>Write as a single power:</small>${P(`(${P(a,m)})`,n)}`,truth:pw(a,m*n),
+   c:[IX(a,m*n),IX(a,m+n),IX(a*n,m),IX(a,m*n+1),IX(a,pw(m,n))],e:`Power of a power: <b>multiply</b> the powers. ${m} × ${n} = ${m*n}, so ${P(a,m*n)}`}},
+ ()=>{const a=pick([2,3,5]),m=ri(3,6),n=ri(2,5),p=ri(2,m+n-1),r=m+n-p;return{q:`<small>Write as a single power:</small>${Fr(`${P(a,m)} × ${P(a,n)}`,P(a,p))}`,truth:pw(a,r),
+   c:[IX(a,r),IX(a,m*n-p),IX(a,m+n+p),IX(a,r+1),IX(a,Math.max(1,r-1))],e:`Top: ${m} + ${n} = ${m+n}. Then divide: ${m+n} − ${p} = ${r}, so ${P(a,r)}`}}],
+3:[ // NEGATIVE POWERS
+ ()=>{const a=pick([2,3,4,5,10]),n=a<=3?ri(1,4):ri(1,3),t=pw(a,n);return{q:`<small>Work out:</small>${P(a,M+n)}`,truth:1/t,
+   c:[R(1,t),N(-t),N(-a*n),R(1,a*n),N(t),R(-1,t)],e:`A negative power means 1 over: ${P(a,M+n)} = ${Fr(1,P(a,n))} = ${R(1,t).h}`}},
+ ()=>{const a=pick([2,3,5,7]),n=ri(2,5);return{q:`<small>Write as a power of ${a}:</small>${Fr(1,P(a,n))}`,truth:pw(a,-n),
+   c:[IX(a,-n),{h:P(`(${M}${a})`,n),v:pw(-a,n)},IX(a,n),{h:P(a,Fr(1,n)),v:pw(a,1/n)},IX(a,-n-1)],e:`${Fr(1,P(a,n))} = ${P(a,M+n)}`}},
+ ()=>{const a=pick([2,3,5]),m=ri(2,6),n=ri(3,9),r=m-n;return{q:`<small>Write as a single power:</small>${P(a,m)} × ${P(a,M+n)}`,truth:pw(a,r),
+   c:[IX(a,r),IX(a,m+n),IX(a,-m*n),IX(a,-r),IX(a,r-1)],e:`Add the powers: ${m} + (${M}${n}) = ${sgn(r)}, so ${P(a,sgn(r))}`}},
+ ()=>{const a=pick([3,5,7,12,25,100]);return{q:`<small>Work out:</small>${P(a,0)}`,truth:1,
+   c:[N(1),N(0),N(a),N(-1),R(1,a)],e:`Any number (not 0) to the power 0 is 1`}}],
+4:[ // RECIPROCAL
+ ()=>{const a=pick([3,4,5,7,8,9,12]);return{q:`<small>What is the reciprocal of</small>${a}`,truth:1/a,
+   c:[R(1,a),N(-a),R(-1,a),N(a),N(a*a)],e:`Reciprocal: flip it. ${a} = ${Fr(a,1)} becomes ${Fr(1,a)}`}},
+ ()=>{let p=ri(2,7),q=ri(p+1,11);while(gcd(p,q)>1){p=ri(2,7);q=ri(p+1,11)}return{q:`<small>What is the reciprocal of</small>${Fr(p,q)}`,truth:q/p,
+   c:[R(q,p),R(p,q),R(-p,q),R(-q,p),R(p*p,q*q)],e:`Flip the fraction: ${Fr(p,q)} becomes ${Fr(q,p)}`}},
+ ()=>{const w=ri(1,4);let p=1,q=pick([2,3,4,5]);if(q>2)p=ri(1,q-1);while(gcd(p,q)>1)p=ri(1,q-1);const top=w*q+p;
+   return{q:`<small>What is the reciprocal of</small>${w}${Fr(p,q)}`,truth:q/top,
+   c:[R(q,top),R(top,q),R(q,p+w),R(1,w),R(-q,top)],e:`First make it improper: ${w}${Fr(p,q)} = ${Fr(top,q)}. Then flip: ${Fr(q,top)}`}},
+ ()=>{let p=ri(2,5),q=ri(p+1,7);while(gcd(p,q)>1){p=ri(2,5);q=ri(p+1,7)}const two=Math.random()<.5,n=two?2:1;
+   return{q:`<small>Work out:</small>${P(`(${Fr(p,q)})`,M+n)}`,truth:pw(q/p,n),
+   c:[R(pw(q,n),pw(p,n)),R(pw(p,n),pw(q,n)),R(-pw(q,n),pw(p,n)),R(n*q,p),R(-pw(p,n),pw(q,n))],
+   e:`The negative power flips the fraction: ${two?`${P(`(${Fr(q,p)})`,2)} = ${Fr(q*q,p*p)}`:`${Fr(q,p)}`}`}}],
+5:[ // FRACTIONAL POWERS
+ ()=>{const r=ri(2,12),a=r*r;return{q:`<small>Work out:</small>${P(a,Fr(1,2))}`,truth:r,
+   c:[N(r),R(a,2),N(a*a),N(-r),N(r+1)],e:`The power ${Fr(1,2)} means square root: ${rad(a)} = ${r}`}},
+ ()=>{const r=pick([2,3,4,5,10]),a=r*r*r;return{q:`<small>Work out:</small>${P(a,Fr(1,3))}`,truth:r,
+   c:[N(r),R(a,3),N(r*r),N(-r),N(r+1)],e:`The power ${Fr(1,3)} means cube root: ${rad(a,3)} = ${r} because ${r} × ${r} × ${r} = ${a}`}},
+ ()=>{const [a,n,m]=pick([[8,3,2],[27,3,2],[64,3,2],[125,3,2],[16,4,3],[4,2,3],[9,2,3],[25,2,3],[32,5,2],[16,2,3],[8,3,4],[81,4,3]]);const r=Math.round(pw(a,1/n)),t=pw(r,m);
+   return{q:`<small>Work out:</small>${P(a,Fr(m,n))}`,truth:t,
+   c:[N(t),R(a*m,n),N(r*m),N(pw(r,m+1)),N(pw(a,m))],e:`Bottom ${n} = root, top ${m} = power: ${n==2?rad(a):rad(a,n)} = ${r}, then ${P(r,m)} = ${t}`}},
+ ()=>{const [a,n,m]=pick([[8,3,2],[27,3,2],[16,4,3],[4,2,3],[9,2,3],[25,2,1],[36,2,1],[64,3,1],[32,5,2],[100,2,3]]);const r=Math.round(pw(a,1/n)),t=pw(r,m);
+   return{q:`<small>Work out:</small>${P(a,M+(m==1?Fr(1,n):Fr(m,n)))}`,truth:1/t,
+   c:[R(1,t),N(-t),N(t),R(-1,t),R(1,r)],e:`Negative power: flip it. ${n==2?rad(a):rad(a,n)} = ${r}${m>1?`, ${P(r,m)} = ${t}`:''}, so the answer is ${Fr(1,t)}`}}]};
+
+function build(stage){const g=pick(GEN[stage])(),seen=[g.c[0]];
+ for(const o of g.c.slice(1)){if(seen.length==4)break;if(!isFinite(o.v)&&o.v!==undefined&&!isNaN(o.v))continue;
+  if(seen.every(s=>Math.abs(s.v-o.v)>1e-9&&s.h!==o.h)&&!isNaN(o.v))seen.push(o)}
+ let k=2;while(seen.length<4){const v=g.truth*k+k;seen.push(N(Math.round(v)));k++}
+ const order=shuf([0,1,2,3]);return{q:g.q,e:g.e,truth:g.truth,opts:order.map(i=>seen[i]),ans:order.indexOf(0)}}
+
+// ---------- the journey ----------
+const STOPS=[
+ {name:'Al Khobar',x:420,y:205},
+ {name:'Istanbul',x:300,y:120,col:'var(--c1)',skill:'Index form',task:'Get your travel documents',items:[['&#x1F6C2;','Passport'],['&#x1F3AB;','Ticket'],['&#x1F3E8;','Hotel'],['&#x1F4C4;','Visa']],
+  rule:`${P('a','n')} = a × a × … × a (<i>n</i> times)<br>e.g. 2 × 2 × 2 = ${P(2,3)} = 8 &nbsp;&nbsp; 72 = ${P(2,3)} × ${P(3,2)}`},
+ {name:'Rome',x:215,y:105,col:'var(--c2)',skill:'Index laws',task:'Pack your suitcase',items:[['&#x1F45A;','Clothes'],['&#x1F45F;','Shoes'],['&#x1F9E3;','Scarf'],['&#x2602;&#xFE0F;','Umbrella']],
+  rule:`Multiply &rarr; <b>add</b> powers: ${P('a','m')} × ${P('a','n')} = ${P('a','m+n')}<br>Divide &rarr; <b>subtract</b>: ${P('a','m')} ÷ ${P('a','n')} = ${P('a','m−n')}<br>Power of a power &rarr; <b>multiply</b>: ${P('(a<sup>m</sup>)','n')} = ${P('a','mn')}`},
+ {name:'London',x:150,y:62,col:'var(--c3)',skill:'Negative powers',task:'Exchange your money',items:[['&#x1F4B7;','Pounds'],['&#x1F45B;','Wallet'],['&#x1F4B3;','Card'],['&#x1FA99;','Coins']],
+  rule:`${P('a',M+'n')} = ${Fr(1,P('a','n'))} &nbsp;&nbsp; e.g. ${P(2,M+3)} = ${Fr(1,8)}<br>${P('a',0)} = 1`},
+ {name:'Tokyo',x:585,y:120,col:'var(--c4)',skill:'Reciprocals',task:'Charge your gadgets',items:[['&#x1F4F1;','Phone'],['&#x1F50B;','Power bank'],['&#x1F3A7;','Headphones'],['&#x1F4F7;','Camera']],
+  rule:`Reciprocal = flip it: ${Fr('a','b')} &rarr; ${Fr('b','a')} &nbsp;&nbsp; 5 &rarr; ${Fr(1,5)}<br>${P('a',M+1)} = ${Fr(1,'a')} &nbsp;&nbsp; ${P(`(${Fr('a','b')})`,M+'n')} = ${P(`(${Fr('b','a')})`,'n')}<br>Mixed number? Make it improper first.`},
+ {name:'Dream',x:540,y:270,col:'var(--c5)',skill:'Fractional powers',task:'Final boarding check',items:[['&#x1F39F;&#xFE0F;','Boarding pass'],['&#x1F9F3;','Bag tag'],['&#x1F576;&#xFE0F;','Sunglasses'],['&#x1F4F8;','Smile!']],
+  rule:`${P('a',Fr(1,2))} = ${rad('a')} &nbsp;&nbsp; ${P('a',Fr(1,3))} = ${rad('a',3)}<br>${P('a',Fr('m','n'))} = ${P(`(${rad('a','n')})`,'m')} : <b>bottom = root, top = power</b><br>e.g. ${P(8,Fr(2,3))} = ${P(2,2)} = 4`}];
+const DREAMS={
+ Maldives:{c:'#22b8cf',svg:'<rect width="160" height="100" fill="#99e9f2"/><rect y="60" width="160" height="40" fill="#3bc9db"/><circle cx="130" cy="22" r="12" fill="#ffd43b"/><rect x="30" y="48" width="44" height="16" fill="#e9c46a"/><path d="M26 50 L52 30 L78 50Z" fill="#a0522d"/><g stroke="#8d5524" stroke-width="2"><line x1="36" y1="64" x2="36" y2="76"/><line x1="68" y1="64" x2="68" y2="76"/></g><rect x="105" y="40" width="4" height="26" fill="#8d5524"/><path d="M107 41 q-14 -6 -20 4 M107 41 q14 -6 20 4 M107 41 q-4 -12 -14 -10" stroke="#2b8a3e" stroke-width="5" fill="none"/>'},
+ 'Swiss Alps':{c:'#1971c2',svg:'<rect width="160" height="100" fill="#d0ebff"/><path d="M0 85 L45 25 L80 70 L115 15 L160 80 V100 H0Z" fill="#748ffc"/><path d="M35 38 L45 25 L55 38 Z M105 28 L115 15 L126 30Z" fill="#fff"/><rect y="80" width="160" height="20" fill="#69db7c"/><rect x="62" y="66" width="26" height="18" fill="#c0783c"/><path d="M58 68 L75 54 L92 68Z" fill="#862e2e"/>'},
+ 'Northern Lights':{c:'#5f3dc4',svg:'<rect width="160" height="100" fill="#141b3d"/><path d="M0 40 q40 -30 80 0 t80 -10" stroke="#63e6be" stroke-width="10" fill="none" opacity=".8"/><path d="M0 55 q40 -25 80 -5 t80 -15" stroke="#b197fc" stroke-width="7" fill="none" opacity=".7"/><g fill="#fff"><circle cx="20" cy="15" r="1.5"/><circle cx="70" cy="10" r="1.2"/><circle cx="130" cy="18" r="1.5"/><circle cx="100" cy="30" r="1"/></g><path d="M0 85 L30 65 L60 82 L100 60 L160 85 V100 H0Z" fill="#e9ecef"/>'},
+ AlUla:{c:'#e8590c',svg:'<rect width="160" height="100" fill="#ffd8a8"/><circle cx="125" cy="25" r="13" fill="#fff3bf"/><rect y="78" width="160" height="22" fill="#f4a261"/><path d="M45 80 C40 50 55 35 75 38 C100 30 112 52 108 80Z" fill="#c2581c"/><path d="M60 80 C58 64 66 58 72 60 C78 62 78 70 76 80Z" fill="#ffd8a8"/><path d="M118 80 L128 62 L140 80Z" fill="#d9480f"/>'}};
+// original traveller character (girl with hijab and a suitcase)
+const GIRL=`<g><ellipse cx="0" cy="44" rx="14" ry="3" fill="#0002"/><rect x="10" y="22" width="14" height="18" rx="3" fill="#f59f00" stroke="#c77700" stroke-width="1.5"/><rect x="15" y="18" width="4" height="5" fill="none" stroke="#c77700" stroke-width="1.5"/>
+<path d="M-11 42 L-9 14 Q0 8 9 14 L11 42Z" fill="#7048e8"/><path d="M-12 4 Q-12 -14 0 -14 Q12 -14 12 4 Q12 16 0 17 Q-12 16 -12 4Z" fill="#e64980"/>
+<ellipse cx="0" cy="1" rx="7.5" ry="8.5" fill="#f3c9a0"/><circle cx="-3" cy="0" r="1.2" fill="#1d2242"/><circle cx="3" cy="0" r="1.2" fill="#1d2242"/><path d="M-2.5 4.5 q2.5 2 5 0" stroke="#1d2242" stroke-width="1.2" fill="none"/><line x1="9" y1="22" x2="12" y2="24" stroke="#f3c9a0" stroke-width="3"/></g>`;
+const PLANE='<g><path d="M-16 0 L14 -2 Q20 0 14 2 Z" fill="#fff" stroke="#495057" stroke-width="1.2"/><path d="M-2 -1 L-8 -12 L-3 -12 L6 -1Z M-2 1 L-8 12 L-3 12 L6 1Z" fill="#4dabf7"/><path d="M-14 -1 L-17 -7 L-13 -7 L-10 -1Z" fill="#4dabf7"/></g>';
+
+let S;const $=id=>document.getElementById(id);
+let AC;function beep(f,d=.12,t='sine'){try{AC=AC||new AudioContext();const o=AC.createOscillator(),g=AC.createGain();o.type=t;o.frequency.value=f;g.gain.value=.12;o.connect(g);g.connect(AC.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.stop(AC.currentTime+d)}catch(e){}}
+const yay=()=>{beep(660);setTimeout(()=>beep(880),100);setTimeout(()=>beep(1175,.22),200)},nope=()=>{beep(220,.2,'square');setTimeout(()=>beep(160,.3,'square'),150)};
+
+function legPath(a,b){const mx=(a.x+b.x)/2,my=Math.min(a.y,b.y)-55;return `M${a.x} ${a.y} Q${mx} ${my} ${b.x} ${b.y}`}
+function drawMap(){const D=DREAMS[S.dream];STOPS[5].name=S.dream;
+ let h=`<rect width="640" height="330" fill="#d0ebff"/><g fill="#b2f2bb" stroke="#8ce99a" stroke-width="2">
+ <path d="M110 40 q40 -20 90 -5 q40 15 60 45 q30 20 70 15 q60 -10 110 10 q60 25 50 70 q-30 10 -60 -5 q-40 -15 -80 10 q-20 40 -5 80 q-40 30 -90 10 q-30 -40 -60 -60 q-40 -10 -60 -50 q-30 -50 -25 -120z"/>
+ <path d="M540 70 q30 -10 50 20 q10 30 -15 50 q-25 10 -40 -15 q-10 -30 5 -55z"/><path d="M500 245 q30 -15 70 0 q25 20 0 40 q-40 15 -75 -5 q-15 -20 5 -35z"/></g>`;
+ for(let i=0;i<5;i++)h+=`<path d="${legPath(STOPS[i],STOPS[i+1])}" fill="none" stroke="${i<S.stage-1?'#e8590c':'#868e96'}" stroke-width="3" stroke-dasharray="7 7"/>`;
+ STOPS.forEach((s,i)=>{const done=i<S.stage,here=i==S.stage-1||(S.stage==0&&i==0);
+  h+=`<g transform="translate(${s.x} ${s.y})"><circle r="${i==5?11:8}" fill="${i==5?D.c:done?'#e8590c':'#fff'}" stroke="#1d2242" stroke-width="2.5"/>${i==5?'<text y="4" text-anchor="middle" font-size="11">&#x2B50;</text>':''}
+  <text y="${s.y<90?24:-14}" text-anchor="middle" font-family="Baloo 2" font-weight="800" font-size="15" fill="#1d2242" stroke="#fff" stroke-width="4" paint-order="stroke">${s.name}</text></g>`});
+ const at=STOPS[Math.max(0,S.stage-1)];
+ h+=`<g id="girl" transform="translate(${at.x-26} ${at.y-24}) scale(.9)">${GIRL}</g><g id="plane" transform="translate(-50 -50)">${PLANE}</g>`;
+ $('map').innerHTML=h}
+function flyLeg(from,to,done){const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',legPath(STOPS[from],STOPS[to]));
+ const L=p.getTotalLength(),pl=$('plane');$('girl').style.display='none';beep(300,.6,'triangle');let t0=null;
+ function step(ts){if(t0===null)t0=ts;const k=Math.min(1,(ts-t0)/2400),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2,a=p.getPointAtLength(e*L),b=p.getPointAtLength(Math.min(L,e*L+1));
+  pl.setAttribute('transform',`translate(${a.x} ${a.y}) rotate(${Math.atan2(b.y-a.y,b.x-a.x)*180/Math.PI}) scale(1.3)`);
+  if(k<1)requestAnimationFrame(step);else done()}
+ requestAnimationFrame(step)}
+
+function drawPrep(){const st=STOPS[S.stage];$('preptitle').innerHTML=`At ${STOPS[S.stage-1].name}: ${st.task} &rarr; fly to ${st.name}`;
+ $('prep').innerHTML=st.items.map((it,i)=>`<div class="slot ${i<S.got?'got':''}"><span class="e">${it[0]}</span>${it[1]}</div>`).join('')}
+function hud(){$('who').innerHTML=`&#x1F9D5; ${S.name}`;$('stars').innerHTML=`&#x2B50; ${S.stars}`}
+function newQ(){S.cur=build(S.stage);S.lock=false;const st=STOPS[S.stage],c=S.cur;
+ $('qcard').innerHTML=`<div class="stage"><span class="sk" style="background:${st.col}">Stop ${S.stage} of 5 &middot; ${st.skill}</span><span class="task">${st.task}: ${S.got}/4</span></div>
+ <div class="q">${c.q}</div><div class="opts" id="opts">${c.opts.map((o,i)=>`<button class="opt" data-i="${i}"><span class="L">${'ABCD'[i]}</span><span>${o.h}</span></button>`).join('')}</div>
+ <div class="fb" id="fb"></div><div class="row"><button class="btn rule" id="rb">&#x1F4D8; Rule card</button><button class="btn" id="nx" style="display:none">Next &rarr;</button></div><div class="rulecard" id="rc">${st.rule}</div>`;
+ $('opts').onclick=e=>{const b=e.target.closest('.opt');if(b)answer(+b.dataset.i,b)};
+ $('rb').onclick=()=>{const r=$('rc');r.style.display=r.style.display=='block'?'none':'block'};$('nx').onclick=next}
+function answer(i,b){if(S.lock)return;S.lock=true;const ok=i==S.cur.ans;$('opts').children[S.cur.ans].classList.add('right');
+ if(ok){S.got++;S.stars+=S.miss?1:2;yay()}else{b.classList.add('wrong');S.miss++;S.mistakes++;nope()}
+ $('fb').className='fb '+(ok?'ok':'bad');$('fb').innerHTML=(ok?`&#x2705; Packed: <b>${STOPS[S.stage].items[S.got-1][1]}</b>! `:'&#x274C; Not packed yet. ')+S.cur.e+(ok?'':'<br>Try a new question.');
+ drawPrep();hud();$('nx').style.display='inline-block';$('nx').innerHTML=S.got==4?(S.stage==5?'Board the final flight &#x2708;&#xFE0F;':`Fly to ${STOPS[S.stage].name} &#x2708;&#xFE0F;`):'Next &rarr;'}
+function next(){if(S.got<4)return newQ();
+ const st=STOPS[S.stage],from=S.stage-1,to=S.stage;
+ $('qcard').innerHTML=`<div style="text-align:center;padding:40px 0"><h2 style="font-size:32px">&#x2708;&#xFE0F; Flying to ${st.name}...</h2><p style="font-size:19px">Everything is ready. Fasten your seatbelt!</p></div>`;
+ flyLeg(from,to,()=>{const ss=$('stamps');if(S.stage==1)ss.innerHTML='';
+  ss.insertAdjacentHTML('beforeend',`<div class="stamp" style="color:${st.col};border-color:${st.col}">${st.name.toUpperCase()}<br>&#x2714;</div>`);beep(180,.15,'square');
+  if(S.stage==5)return finale();S.stage++;S.got=0;S.miss=0;drawMap();drawPrep();newQ()})}
+function finale(){const D=DREAMS[S.dream];confetti();yay();
+ const total=S.stars,grade=S.mistakes==0?'First class':S.mistakes<=4?'Business class':'Economy class';
+ const ov=document.createElement('div');ov.className='ov';ov.innerHTML=`<div class="card"><div class="postcard"><svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice" style="display:block;width:100%;height:min(230px,32vh)">${D.svg}<g transform="translate(88 58) scale(.75)">${GIRL}</g></svg>
+ <div class="hand">Greetings from ${S.dream}! &#x1F496;<br>I answered my way here with the power of indices. &mdash; ${S.name}</div></div>
+ <div class="bpass"><div class="l"><div class="lbl">Passenger</div><b>${S.name}</b><div class="lbl" style="margin-top:6px">Route</div><b style="font-size:17px">Al Khobar &rarr; Istanbul &rarr; Rome &rarr; London &rarr; Tokyo &rarr; ${S.dream}</b></div>
+ <div class="r"><div class="lbl">Class</div><b style="font-size:17px">${grade}</b><div class="lbl" style="margin-top:6px">Stars</div><b>&#x2B50; ${total}</b><div class="lbl" style="margin-top:6px">Mistakes</div><b>${S.mistakes}</b></div></div>
+ <div class="row" style="justify-content:center"><button class="btn" id="cp">Copy my result</button><button class="btn" style="background:#f59f00" onclick="location.reload()">Travel again</button></div></div>`;
+ document.body.appendChild(ov);
+ $('cp').onclick=()=>{const t=`Passport to Powers - ${S.name} reached ${S.dream}: ${total} stars, ${S.mistakes} mistakes, ${grade}`;navigator.clipboard&&navigator.clipboard.writeText(t);$('cp').textContent='Copied!'}}
+
+// intro
+let dream='Maldives';
+$('dreams').innerHTML=Object.entries(DREAMS).map(([k,d])=>`<button class="dream${k==dream?' on':''}" data-k="${k}"><svg viewBox="0 0 160 100">${d.svg}</svg>${k}</button>`).join('');
+$('dreams').onclick=e=>{const b=e.target.closest('.dream');if(!b)return;dream=b.dataset.k;document.querySelectorAll('.dream').forEach(x=>x.classList.toggle('on',x==b));beep(700,.08)};
+$('go').onclick=()=>{const n=$('nm').value.trim()||'Traveller';S={name:n,dream,stage:1,got:0,miss:0,mistakes:0,stars:0};$('intro').remove();beep(523);drawMap();drawPrep();hud();newQ()};
+$('nm').onkeydown=e=>{if(e.key=='Enter')$('go').click()};
+
+function confetti(){const c=$('conf'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;
+ const P2=Array.from({length:180},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height*.5,v:2+Math.random()*4,r:4+Math.random()*6,h:Math.random()*360,s:Math.random()*6}));let t=0;
+ (function f(){x.clearRect(0,0,c.width,c.height);P2.forEach(p=>{p.y+=p.v;p.x+=Math.sin((t+p.s)/12)*1.5;x.fillStyle=`hsl(${p.h},85%,60%)`;x.fillRect(p.x,p.y,p.r,p.r*.6)});
+  if(++t<260)requestAnimationFrame(f);else x.clearRect(0,0,c.width,c.height)})()}
+</script>
+</body>
+</html>
